@@ -40,6 +40,8 @@ adjacency(20,[12,6,18,7,16]).
 position(P):- numCities(N), between(0,N,P).
 city(I):-     adjacency(I,_).
 
+distancia(D):- maxCost(N), between(0, N, D).
+
 
 %%%%%%% =======================================================================================
 %
@@ -82,6 +84,7 @@ exactamenteUnaUnicaCiudadEnTodasLasPosiciones.
 ciudadesAdyacentes:- city(I1), adjacency(I1, L), city(I2), position(P1), not(position(20) = position(P1)), P2 is P1 + 1, not(member(I2, L)), writeClause([-visited(I1, P1), -visited(I2, P2)]), fail.
 ciudadesAdyacentes.
 
+noSuperarCoste:- findall(city(C), city(C), ciudades).
 %%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
 %displaySol(M):- nl, write(M), nl, nl, fail.
