@@ -5,7 +5,7 @@
 %  -trajects between cities with the same parity have cost 0 euros
 %  -trajects between cities of different parity  have cost 1 euro
 % For example, the following solution has cost 10:
-%   1 10 4 8 3 20 18 14 12 11 15 2 5 9 17 16 7 13 19 6 1 
+%   1 10 4 8 3 20 18 14 12 11 15 2 5 9 17 16 7 13 19 6 1
 %    ^      ^ ^           ^     ^ ^      ^  ^       ^ ^
 % Complete the following program to compute one such a route.
 
@@ -44,7 +44,7 @@ city(I):-     adjacency(I,_).
 %%%%%%% =======================================================================================
 %
 % Our LI Prolog template for solving problems using a SAT solver.
-% 
+%
 % It generates the SAT clauses, calls the SAT solver, and shows the solution. Just specify:
 %       1. SAT Variables
 %       2. Clause generation
@@ -61,22 +61,38 @@ satVariable( visited(I,P) ):-  city(I), position(P). % visited(I,P) meaning "cit
 
 %%%%%%  2. Clause generation for the SAT solver:
 
-writeClauses:- 
-    ...
+writeClauses:-
+  empiezoyAcaboEn1,
+  exactamenteUnaCiudadEnCadaPosicion,
+  exactamenteUnaUnicaCiudadEnTodasLasPosiciones,
+  ciudadesAdyacentes,
+  true, !.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
+empiezoyAcaboEn1:- numCities(N), member(X, [0, N]), writeClause([visited(1, X)]), fail.
+empiezoyAcaboEn1.
+
+exactamenteUnaCiudadEnCadaPosicion:- position(P), findall(visited(I, P), city(I), Lits), exactly(1, Lits), fail.
+exactamenteUnaCiudadEnCadaPosicion.
+
+exactamenteUnaUnicaCiudadEnTodasLasPosiciones:- city(I), not(city(1) = city(I)), findall(visited(I, P), position(P), Lits), exactly(1, Lits), fail.
+exactamenteUnaUnicaCiudadEnTodasLasPosiciones.
+
+                      %visited(I, P)
+ciudadesAdyacentes:- city(I1), adjacency(I1, L), city(I2), position(P1), not(position(20) = position(P1)), P2 is P1 + 1, not(member(I2, L)), writeClause([-visited(I1, P1), -visited(I2, P2)]), fail.
+ciudadesAdyacentes.
 
 %%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
 %displaySol(M):- nl, write(M), nl, nl, fail.
-displaySol(M):- position(P), member(visited(City,P),M), write(City), write(' '), fail.
+displaySol(M):- position(P), member(visited(City,P),M), write('visited('), write(City), write(','), write(P), write(').'), nl, fail.
 displaySol(_):- nl.
 
 
 
 
 %%%%%%% =======================================================================================
-    
+
 
 
 
@@ -85,12 +101,12 @@ displaySol(_):- nl.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Everything below is given as a standard library, reusable for solving 
+% Everything below is given as a standard library, reusable for solving
 %    with SAT many different problems.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Express that Var is equivalent to the disjunction of Lits:
-expressOr( Var, Lits ):- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !. 
+expressOr( Var, Lits ):- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !.
 expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeClause([ NLit, Var ]), fail.
 expressOr( Var, Lits ):- negate(Var,NVar), writeClause([ NVar | Lits ]),!.
 
@@ -101,7 +117,7 @@ expressOr( Var, Lits ):- negate(Var,NVar), writeClause([ NVar | Lits ]),!.
 %% a -> x v y   -a v x v y
 
 % Express that Var is equivalent to the conjunction of Lits:
-expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !. 
+expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !.
 expressAnd( Var, Lits):- member(Lit,Lits), negate(Var,NVar), writeClause([ NVar, Lit ]), fail.
 expressAnd( Var, Lits):- findall(NLit, (member(Lit,Lits), negate(Lit,NLit)), NLits), writeClause([ Var | NLits]), !.
 
@@ -150,7 +166,7 @@ main:-  initClauseGeneration,
 treatResult(20):- write('Unsatisfiable'), nl, halt.
 treatResult(10):- write('Solution found: '), nl, see(model), symbolicModel(M), seen, displaySol(M), nl,nl,halt.
 treatResult( _):- write('cnf input error. Wrote anything strange in your cnf?'), nl,nl, halt.
-    
+
 
 initClauseGeneration:-  %initialize all info about variables and clauses:
         retractall(numClauses(   _)),
@@ -162,8 +178,8 @@ initClauseGeneration:-  %initialize all info about variables and clauses:
 writeClause([]):- symbolicOutput(1),!, nl.
 writeClause([]):- countClause, write(0), nl.
 writeClause([Lit|C]):- w(Lit), writeClause(C),!.
-w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!. 
-w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!. 
+w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!.
+w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!.
 w(-Var):- satVariable(Var),  var2num(Var,N),   write(-), write(N), write(' '),!.
 w( Var):- satVariable(Var),  var2num(Var,N),             write(N), write(' '),!.
 w( Lit):- told, write('ERROR: generating clause with undeclared variable in literal '), write(Lit), nl,nl, halt.
