@@ -24,30 +24,50 @@ adjacency(20,[12,6,18,7,16]).
 
 visited(1,0).
 visited(10,1).
-visited(11,2).
-visited(4,3).
-visited(5,4).
-visited(9,5).
-visited(17,6).
-visited(16,7).
-visited(8,8).
-visited(3,9).
-visited(20,10).
-visited(18,11).
-visited(14,12).
-visited(12,13).
-visited(15,14).
-visited(2,15).
-visited(7,16).
-visited(13,17).
-visited(19,18).
-visited(6,19).
+visited(4,2).
+visited(8,3).
+visited(3,4).
+visited(20,5).
+visited(12,6).
+visited(15,7).
+visited(18,8).
+visited(14,9).
+visited(7,10).
+visited(13,11).
+visited(19,12).
+visited(6,13).
+visited(17,14).
+visited(16,15).
+visited(2,16).
+visited(5,17).
+visited(9,18).
+visited(11,19).
 visited(1,20).
 
 sameParity(I1, I2):- (0 is I1 mod 2), (0 is I2 mod 2), !.
 sameParity(I1, I2):- not(0 is I1 mod 2), not(0 is I2 mod 2), !.
 
-position(P):- numCities(N), between(0,N,P).
+position(P):- numCities(N), between(0,N,P).visited(1,0).
+visited(10,1).
+visited(4,2).
+visited(8,3).
+visited(3,4).
+visited(20,5).
+visited(12,6).
+visited(15,7).
+visited(18,8).
+visited(14,9).
+visited(7,10).
+visited(13,11).
+visited(19,12).
+visited(6,13).
+visited(17,14).
+visited(16,15).
+visited(2,16).
+visited(5,17).
+visited(9,18).
+visited(11,19).
+visited(1,20).
 city(I):-     adjacency(I,_).
 
 sonAdyacentes(I1, I2):- adjacency(I1, L), member(I2, L), !.

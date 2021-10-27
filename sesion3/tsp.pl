@@ -59,6 +59,7 @@ symbolicOutput(0).
 %%%%%%  1. SAT Variables:
 satVariable( visited(I,P) ):-  city(I), position(P). % visited(I,P) meaning "city I is visited in position P"
 % Warning: more types of variables might be needed or convenient.
+satVariable(cost(P)):- position(P).
 
 
 %%%%%%  2. Clause generation for the SAT solver:
@@ -68,6 +69,8 @@ writeClauses:-
   exactamenteUnaCiudadEnCadaPosicion,
   exactamenteUnaUnicaCiudadEnTodasLasPosiciones,
   ciudadesAdyacentes,
+  noSuperarCoste,
+  noSuperarCoste2,
   true, !.
 writeClauses:- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
@@ -84,7 +87,11 @@ exactamenteUnaUnicaCiudadEnTodasLasPosiciones.
 ciudadesAdyacentes:- city(I1), adjacency(I1, L), city(I2), position(P1), not(position(20) = position(P1)), P2 is P1 + 1, not(member(I2, L)), writeClause([-visited(I1, P1), -visited(I2, P2)]), fail.
 ciudadesAdyacentes.
 
-noSuperarCoste:- findall(city(C), city(C), ciudades).
+noSuperarCoste:- city(C1), city(C2), 1 is (C1 + C2) mod 2, position(P1), position(P2), P1 is P2 - 1, writeClause([-visited(C1, P1), -visited(C2, P2), cost(P1)]), fail.
+noSuperarCoste.
+
+noSuperarCoste2:- maxCost(X), findall(cost(P), position(P), Lits), atMost(X, Lits), fail.
+noSuperarCoste2.
 %%%%%%  3. DisplaySol: show the solution. Here M contains the literals that are true in the model:
 
 %displaySol(M):- nl, write(M), nl, nl, fail.
