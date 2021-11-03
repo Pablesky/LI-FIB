@@ -67,7 +67,11 @@ writeClauses(MaxCost):-
     teamHasADoubleAway,
     teamPlaysHome,
     teamPlaysAway,
+    teamHasNotADouble,
     noTriplets,
+    teamCantHomeAtRound,
+    noDoubleOnCertainRound,
+    atLeastOneTvMatchPerRound,
     maxCost(MaxCost),
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
@@ -94,9 +98,21 @@ teamHasADoubleHome.
 teamHasADoubleAway:- team(T), round(R1), round(R0), R0 is R1 - 1, writeClause([home(T, R0), home(T, R1), double(T, R1)]), fail.
 teamHasADoubleAway.
 
+teamHasNotADouble:- team(T), round(R1), round(R0), R0 is R1 - 1, writeClause([-home(T, R0), home(T, R1),-double(T, R1)]),
+                    writeClause([home(T, R0), -home(T, R1), -double(T, R1)]), fail.
+teamHasNotADouble.
+
+teamCantHomeAtRound:- team(T), away(T, R), writeClause([-home(T, R)]), fail.
+teamCantHomeAtRound.
+
 noTriplets:- team(T), round(R0), round(R1), R1 is R0 - 1, writeClause([-double(T, R0), -double(T, R1)]), fail.
 noTriplets.
 
+noDoubleOnCertainRound:- noDoubles(L), member(R, L), findall(double(T, R), team(T), Lits), exactly(0, Lits), fail.
+noDoubleOnCertainRound.
+
+atLeastOneTvMatchPerRound:- round(R), findall(match(T, S, R), tvMatch(T, S), Lits), atLeast(1, Lits), fail.
+atLeastOneTvMatchPerRound.
 
 maxCost(infinite):-!.
 maxCost(Max):- team(T), findall(double(T,R), round(R), Lits ), atMost(Max,Lits), fail.
