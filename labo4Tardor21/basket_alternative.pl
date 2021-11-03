@@ -62,12 +62,7 @@ satVariable( double(S,R)  ):- team(S),          round(R).   %  "team S has a dou
 
 writeClauses(MaxCost):-
     eachTeamEachRoundExactlyOneMatch,
-    eachTeamPlaysAgainstEachOtherExactlyOneTime,
-    teamHasADoubleHome,
-    teamHasADoubleAway,
-    teamPlaysHome,
-    teamPlaysAway,
-    noTriplets,
+    onEachRoundAtLeastOneTvGame,
     maxCost(MaxCost),
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
@@ -77,26 +72,10 @@ eachTeamEachRoundExactlyOneMatch:- team(T), round(R),
     findall( match(T,S,R), difTeams(S,T), LitsA ), append(LitsH,LitsA,Lits), exactly(1,Lits), fail.
 eachTeamEachRoundExactlyOneMatch.
 
-eachTeamPlaysAgainstEachOtherExactlyOneTime:- team(T), team(S), difTeams(T, S),
-    findall(match(T, S, R), round(R), LitsA),
-    findall(match(S, T, R), round(R), LitsB), append(LitsA, LitsB, Lits), exactly(1, Lits), fail.
-eachTeamPlaysAgainstEachOtherExactlyOneTime.
-
-teamPlaysHome:- team(T), team(S), difTeams(T, S), round(R), writeClause([-match(T, S, R), home(T, R)]), fail.
-teamPlaysHome.
-
-teamPlaysAway:- team(T), team(S), difTeams(T, S), round(R), writeClause([-match(T, S, R), -home(S, R)]), fail.
-teamPlaysAway.
-
-teamHasADoubleHome:- team(T), round(R1), round(R0), R0 is R1 - 1, writeClause([-home(T, R0), -home(T, R1), double(T, R1)]), fail.
-teamHasADoubleHome.
-
-teamHasADoubleAway:- team(T), round(R1), round(R0), R0 is R1 - 1, writeClause([home(T, R0), home(T, R1), double(T, R1)]), fail.
-teamHasADoubleAway.
-
-noTriplets:- team(T), round(R0), round(R1), R1 is R0 - 1, writeClause([-double(T, R0), -double(T, R1)]), fail.
-noTriplets.
-
+onEachRoundAtLeastOneTvGame:- round(R), team(T1),
+    findall(match(T1, T2, R), tvMatch(T1, T2), Lits1),
+    findall(match(T2, T1, R), tvMatch(T1, T2), Lits2), append(Lits1, Lits2, Lits), atLeast(1, Lits), fail.
+onEachRoundAtLeastOneTvGame.
 
 maxCost(infinite):-!.
 maxCost(Max):- team(T), findall(double(T,R), round(R), Lits ), atMost(Max,Lits), fail.
