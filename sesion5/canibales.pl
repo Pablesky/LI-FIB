@@ -1,3 +1,6 @@
+nat(0).
+nat(N) :- nat(N1), N is N1 + 1.
+
 camino( E,E, C,C ).
 camino( EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal ):-
   unPaso( EstadoActual, EstSiguiente ),
@@ -6,93 +9,102 @@ camino( EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal ):-
 
 solucionOptima:-
   nat(N),
-          %c %m %vj  %cr %mr
-  camino([3, 3, ida, 0, 0], [0, 0, vuelta, 3, 3]),
+  camino([3, 3, true, 0, 0], [0, 0, false, 3, 3], [3, 3, true, 0, 0], C),
   length(C,N),
-  write(C).
+  write(C-N), !.
 
 
 legal([C, M, _, C2, M2]):-
   C >= 0, M >= 0, C2 >= 0, M2 >= 0,
-  (C <= M; M = 0),
-  (C2 <= M2, M2 = 0).
+  (C =< M; M = 0),
+  (C2 =< M2; M2 = 0).
 
-%se van dos misioneros
-unPaso([C, M, ida, C2, M2], [C1, M1, vuelta, C21, M21]):-
-  C1 is C,
-  C21 is C2,
-  M1 is M - 2,
-  M21 is M2 + 2,
-  legal([C1, M1, vuelta, C21, M21]).
+%se van un explorer true
+unPaso([CanibalesIzq, ExplorersIzq, true, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq,
+  ExplorersIzqN is ExplorersIzq -1,
+  CanibalesDerN is CanibalesDer,
+  ExplorersDerN is ExplorersDer + 1,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]).
 
-%vuelven dos misioneros
-unPaso([C, M, vuelta, C2, M2], [C1, M1, ida, C21, M21]):-
-  C1 is C,
-  C21 is C2,
-  M1 is M + 2,
-  M21 is M2 - 2,
-  legal([C1, M1, ida, C21, M21]).
+%se van un explorer false
+unPaso([CanibalesIzq, ExplorersIzq, false, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq,
+  ExplorersIzqN is ExplorersIzq + 1,
+  CanibalesDerN is CanibalesDer,
+  ExplorersDerN is ExplorersDer - 1,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]).
 
-%se van dos canibales
-unPaso([C, M, ida, C2, M2], [C1, M1, vuelta, C21, M21]):-
-  C1 is C - 2,
-  C21 is C2 + 2,
-  M1 is M,
-  M21 is M2,
-  legal([C1, M1, vuelta, C21, M21]).
+%se van un canibal true
+unPaso([CanibalesIzq, ExplorersIzq, true, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq - 1,
+  ExplorersIzqN is ExplorersIzq,
+  CanibalesDerN is CanibalesDer + 1,
+  ExplorersDerN is ExplorersDer,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]).
 
-%vuelven dos canibales
-unPaso([C, M, vuelta, C2, M2], [C1, M1, ida, C21, M21]):-
-  C1 is C + 2,
-  C21 is C2 - 2,
-  M1 is M,
-  M21 is M2,
-  legal([C1, M1, ida, C21, M21]).
+%se van un canibal false
+unPaso([CanibalesIzq, ExplorersIzq, false, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq + 1,
+  ExplorersIzqN is ExplorersIzq,
+  CanibalesDerN is CanibalesDer - 1,
+  ExplorersDerN is ExplorersDer,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]).
 
-%se va un canibal y un misionera
-unPaso([C, M, ida, C2, M2], [C1, M1, vuelta, C21, M21]):-
-  C1 is C - 1,
-  C21 is C2 + 1,
-  M1 is M - 1,
-  M21 is M2 + 1,
-  legal([C1, M1, vuelta, C21, M21]).
+%se van 2 explorer true
+unPaso([CanibalesIzq, ExplorersIzq, true, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq,
+  ExplorersIzqN is ExplorersIzq -2,
+  CanibalesDerN is CanibalesDer,
+  ExplorersDerN is ExplorersDer + 2,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]).
 
-%vuelve un canibal y un misionero
-unPaso([C, M, vuelta, C2, M2], [C1, M1, ida, C21, M21]):-
-  C1 is C + 1,
-  C21 is C2 - 1,
-  M1 is M + 1,
-  M21 is M2 - 1,
-  legal([C1, M1, ida, C21, M21]).
+%se van 2 explorer false
+unPaso([CanibalesIzq, ExplorersIzq, false, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq,
+  ExplorersIzqN is ExplorersIzq + 2,
+  CanibalesDerN is CanibalesDer,
+  ExplorersDerN is ExplorersDer - 2,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]).
 
-%se va un canibal
-unPaso([C, M, ida, C2, M2], [C1, M1, vuelta, C21, M21]):-
-  C1 is C - 1,
-  C21 is C2 + 1,
-  M1 is M,
-  M21 is M2,
-  legal([C1, M1, vuelta, C21, M21]).
+%se van 2 canibal true
+unPaso([CanibalesIzq, ExplorersIzq, true, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq - 2,
+  ExplorersIzqN is ExplorersIzq,
+  CanibalesDerN is CanibalesDer + 2,
+  ExplorersDerN is ExplorersDer,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]).
 
-%vuelve un canibal
-unPaso([C, M, vuelta, C2, M2], [C1, M1, ida, C21, M21]):-
-  C1 is C + 1,
-  C21 is C2 - 1,
-  M1 is M,
-  M21 is M2,
-  legal([C1, M1, ida, C21, M21]).
+%se van 2 canibal false
+unPaso([CanibalesIzq, ExplorersIzq, false, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq + 2,
+  ExplorersIzqN is ExplorersIzq,
+  CanibalesDerN is CanibalesDer - 2,
+  ExplorersDerN is ExplorersDer,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]).
 
-%se va un canibal
-unPaso([C, M, ida, C2, M2], [C1, M1, vuelta, C21, M21]):-
-  C1 is C,
-  C21 is C2,
-  M1 is M - 1,
-  M21 is M2 + 1,
-  legal([C1, M1, vuelta, C21, M21]).
+%se van 1 de cada true
+unPaso([CanibalesIzq, ExplorersIzq, true, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq - 1,
+  ExplorersIzqN is ExplorersIzq - 1,
+  CanibalesDerN is CanibalesDer + 1,
+  ExplorersDerN is ExplorersDer + 1,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, false, CanibalesDerN, ExplorersDerN]).
 
-%vuelve un canibal
-unPaso([C, M, vuelta, C2, M2], [C1, M1, ida, C21, M21]):-
-  C1 is C,
-  C21 is C2,
-  M1 is M + 1,
-  M21 is M2 - 1,
-  legal([C1, M1, ida, C21, M21]).
+%se van 1 de cada false
+unPaso([CanibalesIzq, ExplorersIzq, false, CanibalesDer, ExplorersDer], [CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]):-
+  CanibalesIzqN is CanibalesIzq + 1,
+  ExplorersIzqN is ExplorersIzq + 1,
+  CanibalesDerN is CanibalesDer - 1,
+  ExplorersDerN is ExplorersDer - 1,
+  %write(CanibalesIzq-ExplorersIzq-CanibalesDer-ExplorersDer), nl,
+  legal([CanibalesIzqN, ExplorersIzqN, true, CanibalesDerN, ExplorersDerN]).
