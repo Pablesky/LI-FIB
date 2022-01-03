@@ -1,79 +1,70 @@
-casillasTablero(8).
-pasos(1).
+
+
+
+
+legal(X,Y):-
+  size(S),
+  X >=0, X < S,
+  Y >=0, Y < S.
+
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 + 1,
+  Y2 is Y1 + 2,
+  legal(X2,Y2).
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 + 2,
+  Y2 is Y1 + 1,
+  legal(X2,Y2).
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 + 2,
+  Y2 is Y1 - 1,
+  legal(X2,Y2).
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 + 1,
+  Y2 is Y1 - 2,
+  legal(X2,Y2).
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 - 1,
+  Y2 is Y1 - 2,
+  legal(X2,Y2).
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 - 2,
+  Y2 is Y1 - 1,
+  legal(X2,Y2).
+
+
+unPaso([X1,Y1],[X2,Y2]):-
+  X2 is X1 - 2,
+  Y2 is Y1 + 1,
+  legal(X2,Y2).
+
+
 
 camino( E,E, C,C ).
 camino( EstadoActual, EstadoFinal, CaminoHastaAhora, CaminoTotal ):-
-  unPaso( EstadoActual, EstSiguiente ),
-  \+member(EstSiguiente,CaminoHastaAhora),
-  camino( EstSiguiente, EstadoFinal, [EstSiguiente|CaminoHastaAhora], CaminoTotal ).
+        length(CaminoHastaAhora,L), pasos(N), L =<N,
+        unPaso( EstadoActual, EstSiguiente ),
+        \+member(EstSiguiente,CaminoHastaAhora),
+        camino( EstSiguiente, EstadoFinal, [EstSiguiente|CaminoHastaAhora], CaminoTotal ).
+
+size(8).
+pasos(8).
 
 solucionOptima:-
-  pasos(N),
-  camino([1, 1, 0], [3, 3, N], [1, 1, 0], _),
-  write("Good Job"), !.
-
-legal([FilaFinal, ColumnaFinal, NPasos]):-
-  pasos(X),
-  casillasTablero(N),
-  0 < FilaFinal,
-  FilaFinal =< N,
-  0 < ColumnaFinal,
-  ColumnaFinal =< N,
-  NPasos =< X.
-
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial - 1,
-  ColumnaFinal is ColumnaInicial + 2,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial + 1,
-  ColumnaFinal is ColumnaInicial + 2,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial + 2,
-  ColumnaFinal is ColumnaInicial + 1,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial + 2,
-  ColumnaFinal is ColumnaInicial - 1,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial + 1,
-  ColumnaFinal is ColumnaInicial - 2,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial - 1,
-  ColumnaFinal is ColumnaInicial - 2,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial - 2,
-  ColumnaFinal is ColumnaInicial - 1,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
-
-unPaso([FilaInicial, ColumnaInicial, Pasos], [FilaFinal, ColumnaFinal, NPasos]):-
-  FilaFinal is FilaInicial - 2,
-  ColumnaFinal is ColumnaInicial + 1,
-  NPasos is Pasos + 1,
-  legal([FilaFinal, ColumnaFinal, NPasos]),
-  write(FilaFinal-ColumnaFinal-NPasos), nl.
+    pasos(N),
+    write("Comencam"),nl,
+    camino([0,0], [7,7], [[0,0]] , C),
+    N1 is N + 1,
+    length(C,N1),
+    write(C),!.
