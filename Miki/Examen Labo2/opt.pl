@@ -100,6 +100,7 @@ maxOneTvMatchFirstTenRounds.
 % maxDoubles(Max):- team(T), findall(double(T,R), (round(R),R>1), Lits ), atMost(Max,Lits), fail.
 % maxDoubles(_).
 maxDoubles(Max):- findall(hasTwoDoubles(T), team(T), Lits), atMost(Max,Lits),fail.
+maxDoubles(_).
 
 twoDoublesImpliesHasTwoDoubles:- team(T), round(R1), round(R2), R1 \= R2, writeClause([-double(T,R1),-double(T,R2),hasTwoDoubles(T)]),fail.
 twoDoublesImpliesHasTwoDoubles.
@@ -163,10 +164,10 @@ write2(R):- write(R),!.
 % 4. This predicate computes the cost of a given solution M:
 %
 % given was:
-costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I, team(T), findall(R,member(double(T,R),M),L), length(L,Cost), !.
+% costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I, team(T), findall(R,member(double(T,R),M),L), length(L,Cost), !.
 
 % solution of this exam:
-% costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I,findall(T,member(hasTwoDoubles(T),M),L),length(L,Cost),!.
+costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I,team(T),findall(_,member(hasTwoDoubles(T),M),L),length(L,Cost),!.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

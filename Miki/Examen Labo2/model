@@ -5,16 +5,16 @@ c
 c using 2 as default phase
 c
 c parsing infile.cnf
-c parsed header 'p cnf 2730 133290'
-c initialized 2730 variables
-c found 133290 non trivial clauses
+c parsed header 'p cnf 2744 134564'
+c initialized 2744 variables
+c found 134564 non trivial clauses
 c
 c random number generator seed 0
 c 
 c  seconds     variables   original    learned     agility
 c         level        used      conflicts    limit          MB
 c 
-c 0   0.1   0.0  1809  33.7  2393     1     0     0   0.0   3.2 
+c 0   0.1   0.0  1627  40.7  3653     1     0     0   0.0   3.3 
 c 
 c  seconds     variables   original    learned     agility
 c         level        used      conflicts    limit          MB
@@ -26,12 +26,12 @@ c 0 restarts
 c 0 failed literals
 c 1 conflicts
 c 0 decisions
-c 921 fixed variables
-c 822 learned literals
+c 1117 fixed variables
+c 1004 learned literals
 c 0.0% deleted literals
-c 921 propagations
-c 878 visits
-c 33.7% variables used
+c 1116 propagations
+c 1553 visits
+c 40.7% variables used
 c 0.1 seconds in library
 c 0.0 megaprops/second
 c 0.0 megavisits/second
@@ -39,5 +39,5 @@ c probing 0.0 seconds 0%
 c 0 simplifications
 c 0 reductions
 c 0.0 MB recycled
-c 3.2 MB maximally allocated
+c 3.3 MB maximally allocated
 c 0.1 seconds total run time
