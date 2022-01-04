@@ -31,26 +31,36 @@ usesResource(T,R):-    task(T,_,L), member(R,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1.- Declare SAT variables to be used
-satVariable( start(T,H) ):- task(T), integer(H).   "task T starts at hour H"     (MANDATORY)
+satVariable( start(T,H) ):- task(T), integer(H).     %"task T starts at hour H"     (MANDATORY)
+satVariable( inProcess(T,H) ):- task(T), integer(H). %"task T is still in process at hour H"
 % more variables will be needed!!
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 2. This predicate writeClauses(MaxCost) generates the clauses that guarantee that
+% 2. This predicate writeClauses(MaxCost) generates the clauses that guarantee that \+
 % a solution with cost at most MaxCost is found
 
 writeClauses(infinite):- !, writeClauses(168),!.
 writeClauses(MaxHours):-
     initClauseGeneration,
     eachTaskStartsOnce(MaxHours),
-    ...
+    eachHourStartsAtMostOneTask(MaxHours),
+    inProcessDefinition(MaxHours),
+    limitResourcesAtEachHour(MaxHours),
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
+eachTaskStartsOnce(MaxHours):-task(T), duration(T,D), H1 is MaxHours-D+1, findall(start(T,H),between(1,H1,H),Lits), exactly(1,Lits), fail.
+eachTaskStartsOnce(_).
 
-eachTaskStartsOnce(MaxHours):-
+eachHourStartsAtMostOneTask(MaxHours):-between(1,MaxHours,H), findall(start(T,H),task(T),Lits), atMost(1,Lits), fail.
+eachHourStartsAtMostOneTask(_).
 
-eachTaskStartsOnce(MaxHours).
+inProcessDefinition(MaxHours):-task(T), duration(T,D), HFin is MaxHours-D+1, between(1,HFin,H), H1 is H+D-1, between(H,H1,H2), writeClause([-start(T,H),inProcess(T,H2)]), fail.
+inProcessDefinition(_).
+
+limitResourcesAtEachHour(MaxHours):-between(1,MaxHours,H), resourceUnits(R,U), findall(inProcess(T,H),usesResource(T,R),Lits), atMost(U,Lits), fail.
+limitResourcesAtEachHour(_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. This predicate displays a given solution M:
