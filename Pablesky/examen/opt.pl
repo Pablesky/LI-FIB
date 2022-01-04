@@ -8,7 +8,7 @@ symbolicOutput(0).
 % Extend this Prolog source to design a Basketball League with N
 % teams, with N-1 rounds (playing days), where every two teams play
 % against each other on exactly one round, one team at home and the other team
-% away, and on each round each team has exactly one match (home or away). 
+% away, and on each round each team has exactly one match (home or away).
 % Moreover, we say that a team has a "double" on round R if it plays
 % at home on rounds R-1 and on round R, or if it plays away on R-1 and on R.
 % No "triples" are allowed: no three consecutive homes, nor three aways.
@@ -24,8 +24,8 @@ symbolicOutput(0).
 %%%% NOW MODIFIFY THIS SOLUTION TO IMPOSE:
 %
 %  -At most two doubles per team (this is no longer minimized)
-%  -No more than one tv match per round on the first 10 rounds 
-%  -Now minimize the number of teams having two doubles. For this: 
+%  -No more than one tv match per round on the first 10 rounds
+%  -Now minimize the number of teams having two doubles. For this:
 %        -introduce the new SAT variable hasTwoDoubles(S), meaning "team S has two doubles."
 %        -add clauses expressing that if team S has two doubles then hasTwoDoubles(S) is true.
 
@@ -63,6 +63,7 @@ away(T,R):- notHome(T,L), member(R,L).
 satVariable( match(S,T,R) ):- team(S), team(T), round(R).   %  "on round R there is a match S-T at home of S"
 satVariable( home(S,R)    ):- team(S),          round(R).   %  "team S plays at home on round R"
 satVariable( double(S,R)  ):- team(S),          round(R).   %  "team S has a double on round R"
+satVariable( hasTwoDoubles(S)):- team(S).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. This predicate writeClauses(MaxCost) generates the clauses that guarantee that
@@ -78,9 +79,9 @@ writeClauses(MaxCost):-
     tvMatches,
     aways,
     notriples,
-%    maxTwoDoublesPerTeam,           %% add this
-%    maxOneTvMatchFirstTenRounds,    %% add this
-%    twoDoublesImpliesHasTwoDoubles, %% add this
+    maxTwoDoublesPerTeam,           %% add this
+    maxOneTvMatchFirstTenRounds,    %% add this
+    twoDoublesImpliesHasTwoDoubles, %% add this
     maxDoubles(MaxCost),             %% modify this
     true,!.
 writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
@@ -89,17 +90,17 @@ writeClauses(_):- told, nl, write('writeClauses failed!'), nl,nl, halt.
 
 %%%%%% Solution of this exam:
 
-maxTwoDoublesPerTeam:- ...
+maxTwoDoublesPerTeam:- team(T), findall(double(T, R), round(R), L), atMost(2, L), fail.
 maxTwoDoublesPerTeam.
 
-maxOneTvMatchFirstTenRounds:- ...
+maxOneTvMatchFirstTenRounds:- round(R), R =< 10, findall(match(T1, T2, R), tvMatch(T1, T2), L), atMost(1, L), fail.
 maxOneTvMatchFirstTenRounds.
 
 %modify this:
-maxDoubles(Max):- team(T), findall(double(T,R), (round(R),R>1), Lits ), atMost(Max,Lits), fail.
+maxDoubles(Max):- findall(hasTwoDoubles(T), team(T), Lits), atMost(Max,Lits), fail.
 maxDoubles(_).
 
-twoDoublesImpliesHasTwoDoubles:- ...
+twoDoublesImpliesHasTwoDoubles:- round(R1), round(R2), R1 \= R2, team(T), writeClause([-double(T, R1), -double(T, R2), hasTwoDoubles(T)]), fail.
 twoDoublesImpliesHasTwoDoubles.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,16 +128,16 @@ eachMatchExactlyOnce:- difTeams(S,T),
     findall( match(T,S,R),  round(R), LitsA ), append(LitsH,LitsA,Lits), exactly(1,Lits), fail.
 eachMatchExactlyOnce.
 
-defineHome:- difTeams(S,T), round(R), 
-	     writeClause([-match(S,T,R),  home(S,R)]), 
-	     writeClause([-match(S,T,R), -home(T,R)]), 
+defineHome:- difTeams(S,T), round(R),
+	     writeClause([-match(S,T,R),  home(S,R)]),
+	     writeClause([-match(S,T,R), -home(T,R)]),
 	     fail.
 defineHome.
 
 
 defineDoubles:- team(T), round(R), R1 is R+1, round(R1),
-		writeClause([ -home(T,R), -home(T,R1), double(T,R1)]), 
-		writeClause([  home(T,R),  home(T,R1), double(T,R1)]), 
+		writeClause([ -home(T,R), -home(T,R1), double(T,R1)]),
+		writeClause([  home(T,R),  home(T,R1), double(T,R1)]),
 		fail.
 defineDoubles.
 
@@ -164,7 +165,7 @@ write2(R):- write(R),!.
 % costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I, team(T), findall(R,member(double(T,R),M),L), length(L,Cost), !.
 
 % solution of this exam:
-costOfThisSolution(M,Cost):- ...
+costOfThisSolution(M,Cost):- between(0,20,I), Cost is 20-I, team(T), findall(_,member(hasTwoDoubles(T),M),L), length(L,Cost), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,7 +177,7 @@ main:-
     initClauseGeneration,
     tell(clauses), writeClauses(infinite), told,
     tell(header),  writeHeader,  told,
-    numVars(N), numClauses(C), 
+    numVars(N), numClauses(C),
     write('Generated '), write(C), write(' clauses over '), write(N), write(' variables. '),nl,
     shell('cat header clauses > infile.cnf',_),
     write('Launching picosat...'), nl,
@@ -192,7 +193,7 @@ treatResult(10,_):- %   shell('cat model',_),
     see(model), symbolicModel(M), seen,
     costOfThisSolution(M,Cost),
     write('with cost '), write(Cost), nl,nl,
-    displaySol(M), 
+    displaySol(M),
     Cost1 is Cost-1,   nl,nl,nl,nl,nl,  write('Now looking for solution with cost '), write(Cost1), write('...'), nl,
     initClauseGeneration, tell(clauses), writeClauses(Cost1), told,
     tell(header),  writeHeader,  told,
@@ -203,7 +204,7 @@ treatResult(10,_):- %   shell('cat model',_),
     shell('picosat -v -o model infile.cnf', Result),  % if sat: Result=10; if unsat: Result=20.
     treatResult(Result,M),!.
 treatResult(_,_):- write('cnf input error. Wrote something strange in your cnf?'), nl,nl, halt.
-    
+
 
 initClauseGeneration:-  %initialize all info about variables and clauses:
 	retractall(numClauses(   _)),
@@ -215,8 +216,8 @@ initClauseGeneration:-  %initialize all info about variables and clauses:
 writeClause([]):- symbolicOutput(1),!, nl.
 writeClause([]):- countClause, write(0), nl.
 writeClause([Lit|C]):- w(Lit), writeClause(C),!.
-w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!. 
-w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!. 
+w(-Var):- symbolicOutput(1), satVariable(Var), write(-Var), write(' '),!.
+w( Var):- symbolicOutput(1), satVariable(Var), write( Var), write(' '),!.
 w(-Var):- satVariable(Var),  var2num(Var,N),   write(-), write(N), write(' '),!.
 w( Var):- satVariable(Var),  var2num(Var,N),             write(N), write(' '),!.
 w( Lit):- told, write('ERROR: generating clause with undeclared variable in literal '), write(Lit), nl,nl, halt.
@@ -247,12 +248,12 @@ readWord(Char,[Char|W]):- get_code(Char1), readWord(Char1,W), !.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Express that Var is equivalent to the disjunction of Lits:
-expressOr( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !. 
+expressOr( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> or('), write(Lits), write(')'), nl, !.
 expressOr( Var, Lits ):- member(Lit,Lits), negate(Lit,NLit), writeClause([ NLit, Var ]), fail.
 expressOr( Var, Lits ):- negate(Var,NVar), writeClause([ NVar | Lits ]),!.
 
 % Express that Var is equivalent to the conjunction of Lits:
-expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !. 
+expressAnd( Var, Lits) :- symbolicOutput(1), write( Var ), write(' <--> and('), write(Lits), write(')'), nl, !.
 expressAnd( Var, Lits):- member(Lit,Lits), negate(Var,NVar), writeClause([ NVar, Lit ]), fail.
 expressAnd( Var, Lits):- findall(NLit, (member(Lit,Lits), negate(Lit,NLit)), NLits), writeClause([ Var | NLits]), !.
 
