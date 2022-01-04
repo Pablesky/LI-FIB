@@ -5,7 +5,7 @@
 
 :- use_module(library(clpfd)).
 
-main:- example1, halt.
+main:- example1, example2, halt.
 
 example1:- latin([2,_,_,3,        %this example has only one solution:  2 4 1 3
                   3,_,_,_,                                          %   3 1 2 4

@@ -1,3 +1,5 @@
+:- use_module(library(clpfd)).
+
 word( [b,a,k,e] ).
 word( [o,n,y,x] ).
 word( [e,c,h,o] ).
