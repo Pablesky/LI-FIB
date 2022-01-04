@@ -3,7 +3,7 @@
 % Given a partially filled matrix, we want to find ALL its possible completions to make a latin square.
 % Complete the following code to do that:
 
-:- use_module(library(clpfd)). 
+:- use_module(library(clpfd)).
 
 main:- example1, halt.
 
@@ -26,16 +26,29 @@ example2:- latin([ 5,3,_,_,7,_,8,1,2,   %this one has 2 solutions
 latin(L):-
     length(L,Len), S is round(sqrt(Len)),  Len is S*S, %% sqrt means square root.  Len must be a perfect square
     L ins 1..S,
-    matrixByRows(S, L, Rows),     
-    constraintsFromSubLists(Rows), 
+    matrixByRows(S, L, Rows),
+    constraintsFromSubLists(Rows),
     transpose(Rows,Cols),           % the transpose predicate already exists in SWI prolog, no need to implement it
-    ...
+    constraintsFromSubLists(Cols),
+    label(L),
+    write("Rows finals:"),write(Rows),
     nl,nl,displaySol(Rows), nl,nl, fail.
 latin(_).
 
 displaySol(Rows):- member(Row,Rows), nl, member(N,Row), write(N), write(' '), fail.
 displaySol(_).
 
-matrixByRows(...
+matrixByRows(SizeFila, Variables, Rows):-
+  length(Rows, SizeFila),
+  write("Rows principi funcio:"),write(Rows),nl,nl,
+  maplist(compruebaSize(SizeFila),Rows),
+  write("Rows despres de compruebaSize:"),write(Rows),nl,nl,nl,
+  write("Variables"),write(Variables),nl,nl,nl,
+  append(Rows,Variables),
+  write("Rows despres de append"),write(Rows),nl,nl.
 
-constraintsFromSubLists(...
+
+compruebaSize(Tamano, Lista):- length(Lista, Tamano).
+
+constraintsFromSubLists(Filas):-
+  maplist(all_different(),Filas).

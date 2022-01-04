@@ -35,6 +35,8 @@ p:- ejemplo1(RowSums,ColSums),
     declareConstraints(L, MatrixByRows, TransposedMatrix, RowSums, ColSums),
     pretty_print(RowSums, ColSums, MatrixByRows).
 
+listVars(NVars,L):- length(L,NVars).
+
 
 matrixByRows(ListaRecta, NumColumnas, ResultadoMatriz):-
 	length(ListaRecta, SizeListaRecta),
