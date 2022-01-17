@@ -18,8 +18,8 @@ symbolicOutput(0).
 %% format:
 %% task( taskID, Duration, ListOFResourcesUsed ).
 %% resource( resourceID, NumUnitsAvailable ).
- :-include(easy152).       % simple input example file.
-%:-include(hardMaybe97).   % for this example there is a solution of cost 97.  We think it is optimal.
+% :-include(easy152).       % simple input example file.
+:-include(hardMaybe97).   % for this example there is a solution of cost 97.  We think it is optimal.
 %:-include(hardMaybe147).  % for this example there is a solution of cost 147. We think it is optimal.
 
 %%%%%% Some helpful definitions to make the code cleaner:

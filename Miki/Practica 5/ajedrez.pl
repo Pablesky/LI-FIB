@@ -1,13 +1,7 @@
-
-
-
-
 legal(X,Y):-
   size(S),
   X >=0, X < S,
   Y >=0, Y < S.
-
-
 
 unPaso([X1,Y1],[X2,Y2]):-
   X2 is X1 + 1,
